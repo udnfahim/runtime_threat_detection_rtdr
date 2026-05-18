@@ -1,33 +1,476 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# ===================================================================
+# ENTERPRISE .GITIGNORE
+# Production-Grade | Security-Focused | Multi-Stack
+# ===================================================================
+# Covers:
+# - Java / Spring Boot
+# - Node.js / TypeScript
+# - Python
+# - Docker / Kubernetes
+# - Terraform
+# - CI/CD
+# - Secrets / Certificates
+# - IDEs / OS artifacts
+# - Build systems / Caches
+# ===================================================================
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# ===================================================================
+# OS GENERATED FILES
+# ===================================================================
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+$RECYCLE.BIN/
+.Trashes/
+.fseventsd/
+.Spotlight-V100/
+
+# Linux
+*~
+
+# ===================================================================
+# EDITORS / IDES
+# ===================================================================
+
+# IntelliJ IDEA
+.idea/
 *.iml
 *.ipr
+*.iws
+out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+
+# NetBeans
+nbproject/private/
+
+# Vim
+*.swp
+*.swo
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# ===================================================================
+# LOGS / DEBUG / RUNTIME
+# ===================================================================
+
+logs/
+*.log
+*.log.*
+*.out
+*.err
+*.trace
+*.stackdump
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+hs_err_pid*
+replay_pid*
+
+# ===================================================================
+# SECURITY / SECRETS / CREDENTIALS
+# ===================================================================
+
+# Environment Files
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Secret Managers / Vault Exports
+vault/
+secrets/
+credentials/
+private/
+
+# Certificates / Keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+*.jks
+*.keystore
+*.asc
+*.gpg
+
+# Cloud Credentials
+.aws/
+.azure/
+.gcp/
+
+# Kubernetes Secrets
+*kubeconfig*
+*.kubeconfig
+
+# Terraform Sensitive Files
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+
+# SSH
+.ssh/
+
+# Local Secret Overrides
+*.secret
+*.secrets
+secret.*
+secrets.*
+
+# ===================================================================
+# NODE.JS / JAVASCRIPT / TYPESCRIPT
+# ===================================================================
+
+node_modules/
+
+# Package Managers
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.yarnrc
+
+# Build Outputs
+dist/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+.next/
+.nuxt/
+.svelte-kit/
+.parcel-cache/
+.turbo/
 
-### VS Code ###
-.vscode/
+# Frameworks
+.vercel/
+.netlify/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+
+# Cache
+.eslintcache
+.stylelintcache
+
+# ===================================================================
+# JAVA / JVM / SPRING
+# ===================================================================
+
+target/
+build/
+.gradle/
+.gradle-cache/
+
+# JVM Artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Spring
+.springBeans/
+.springBeans
+.applicationPid
+
+# Maven
+.mvn/timing.properties
+
+# Kotlin
+.kotlin/
+
+# ===================================================================
+# PYTHON
+# ===================================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python Tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.nox/
+
+# Packaging
+*.egg
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# ===================================================================
+# GO
+# ===================================================================
+
+bin/
+pkg/
+*.test
+coverage.out
+
+# ===================================================================
+# RUST
+# ===================================================================
+
+target/
+Cargo.lock
+
+# Uncomment for applications:
+#!Cargo.lock
+
+# ===================================================================
+# PHP / COMPOSER
+# ===================================================================
+
+vendor/
+composer.phar
+
+# ===================================================================
+# RUBY
+# ===================================================================
+
+.bundle/
+vendor/bundle/
+
+# ===================================================================
+# DATABASES
+# ===================================================================
+
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+
+# Local Dumps
+*.sql
+*.dump
+
+# ===================================================================
+# DOCKER
+# ===================================================================
+
+.docker/
+docker-data/
+docker-cache/
+
+# Runtime
+*.pid
+
+# Docker Override Files
+docker-compose.override.yml
+
+# ===================================================================
+# KUBERNETES
+# ===================================================================
+
+kubeconfig.yaml
+*.helm-release
+
+# ===================================================================
+# TERRAFORM
+# ===================================================================
+
+.terraform/
+.terraform.lock.hcl
+
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ===================================================================
+# SERVERLESS
+# ===================================================================
+
+.serverless/
+.aws-sam/
+
+# ===================================================================
+# CI/CD
+# ===================================================================
+
+# GitHub Actions Local
+.github/local/
+
+# GitLab
+.gitlab-ci-local/
+
+# Jenkins
+.jenkins/
+
+# ===================================================================
+# TESTING / REPORTS
+# ===================================================================
+
+reports/
+test-results/
+allure-results/
+allure-report/
+
+# Mutation Testing
+mutations.xml
+
+# ===================================================================
+# CACHE / TEMP FILES
+# ===================================================================
+
+.cache/
+.tmp/
+temp/
+tmp/
+
+# Babel / SWC
+.swc/
+.babel-cache/
+
+# ===================================================================
+# GENERATED FILES
+# ===================================================================
+
+generated/
+generated-sources/
+generated-test-sources/
+
+*.generated.*
+*.gen.*
+
+# ===================================================================
+# ARCHIVES / BINARIES
+# ===================================================================
+
+*.zip
+*.tar
+*.gz
+*.tgz
+*.7z
+*.rar
+
+# Media / Binary Dumps
+*.iso
+*.bin
+
+# ===================================================================
+# FRONTEND STATIC EXPORTS
+# ===================================================================
+
+public/build/
+storybook-static/
+
+# ===================================================================
+# MACHINE LEARNING / AI
+# ===================================================================
+
+models/
+checkpoints/
+wandb/
+mlruns/
+
+*.h5
+*.ckpt
+*.onnx
+*.pt
+*.pth
+
+# ===================================================================
+# MONOREPO TOOLING
+# ===================================================================
+
+.nx/
+rush-temp/
+.pnpm-debug.log
+
+# ===================================================================
+# LOCAL DEVELOPMENT OVERRIDES
+# ===================================================================
+
+.local/
+.localrc
+.local.env
+
+# ===================================================================
+# SECURITY AUDIT OUTPUTS
+# ===================================================================
+
+audit/
+security-reports/
+dependency-check-report.*
+
+# ===================================================================
+# BACKUPS
+# ===================================================================
+
+*.bak
+*.backup
+*.old
+*.orig
+
+# ===================================================================
+# LOCK FILE POLICY
+# ===================================================================
+# KEEP lock files for applications.
+# REMOVE only for reusable libraries if required.
+
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# Cargo.lock
+
+# ===================================================================
+# NEVER IGNORE THESE
+# ===================================================================
+
+!.gitignore
+!.gitattributes
+!.editorconfig
+!.env.example
+!.env.template
+
+# ===================================================================
+# END
+# ===================================================================

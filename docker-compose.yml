@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: rtdr
+      POSTGRES_USER: rtdr_user
+      POSTGRES_PASSWORD: rtdr_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    image: systemgrade/rtdr:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rtdr
+      - SPRING_DATASOURCE_USERNAME=rtdr_user
+      - SPRING_DATASOURCE_PASSWORD=rtdr_pass
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SECURITY_OAUTH2_JWK-SET-URI=https://auth.example.com/.well-known/jwks.json
+      - SECURITY_TELEMETRY_AGENT-TOKEN=change-me-secure-token
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  pgdata:

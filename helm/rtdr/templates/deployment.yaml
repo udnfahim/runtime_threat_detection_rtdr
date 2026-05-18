@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rtdr.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "rtdr.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rtdr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "rtdr.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: rtdr
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "{{ .Values.env.SPRING_DATASOURCE_URL }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "{{ .Values.env.SPRING_DATASOURCE_USERNAME }}"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rtdr-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: SPRING_REDIS_HOST
+              value: "{{ .Values.env.SPRING_REDIS_HOST }}"
+            - name: SPRING_REDIS_PORT
+              value: "{{ .Values.env.SPRING_REDIS_PORT }}"
+            - name: SECURITY_TELEMETRY_AGENT-TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: rtdr-secrets
+                  key: SECURITY_TELEMETRY_AGENT-TOKEN
+            - name: SECURITY_OAUTH2_JWK-SET-URI
+              value: "{{ .Values.env.SECURITY_OAUTH2_JWK-SET-URI }}"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}

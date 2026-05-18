@@ -15,10 +15,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * Tracks active SSE subscribers from Linux Nodes using a concurrent map.
- * Instantly delivers structured rule payloads down open stream upon threat detection.
- */
 @Service
 @Slf4j
 public class EnforcementService {

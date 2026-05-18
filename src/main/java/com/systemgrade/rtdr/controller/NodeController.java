@@ -1,6 +1,7 @@
 package com.systemgrade.rtdr.controller;
 
-import com.systemgrade.rtdr.model.Node;
+
+import com.systemgrade.rtdr.domain.model.Node;
 import com.systemgrade.rtdr.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

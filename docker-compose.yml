@@ -1,38 +1,77 @@
-version: '3.8'
-
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: rtdr_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+    networks:
+      - rtdr_network
+
+  app:
+    image: systemgrade/rtdr:latest
+    container_name: rtdr_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rtdr
+      SPRING_DATASOURCE_USERNAME: rtdr_user
+      SPRING_DATASOURCE_PASSWORD: rtdr_pass
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SECURITY_AGENT_TOKEN: "your-highly-secure-production-token"
+      SPRING_MAIN_FORWARD_HEADERS_STRATEGY: native
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rtdr_network
+
   postgres:
     image: postgres:18
+    container_name: rtdr_postgres
     environment:
       POSTGRES_DB: rtdr
       POSTGRES_USER: rtdr_user
-      POSTGRES_PASSWORD: rtdr_pass
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: rtdr_production_password_string
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql:rw
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rtdr_user -d rtdr"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - rtdr_network
 
   redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
-  app:
-    build: .
-    image: systemgrade/rtdr:latest
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rtdr
-      - SPRING_DATASOURCE_USERNAME=rtdr_user
-      - SPRING_DATASOURCE_PASSWORD=rtdr_pass
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SECURITY_OAUTH2_JWK-SET-URI=https://auth.example.com/.well-known/jwks.json
-      - SECURITY_TELEMETRY_AGENT-TOKEN=change-me-secure-token
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - redis
+    image: redis:7-alpine
+    container_name: rtdr_redis
+    volumes:
+      - redisdata:/data:rw
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - rtdr_network
 
 volumes:
   pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+networks:
+  rtdr_network:
+    driver: bridge

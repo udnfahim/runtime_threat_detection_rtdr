@@ -1,7 +1,7 @@
 package com.systemgrade.rtdr.service;
 
-import com.systemgrade.rtdr.model.Incident;
-import com.systemgrade.rtdr.model.Policy;
+import com.systemgrade.rtdr.domain.model.Incident;
+import com.systemgrade.rtdr.domain.model.Policy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

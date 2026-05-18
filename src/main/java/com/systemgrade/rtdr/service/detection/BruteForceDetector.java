@@ -44,23 +44,12 @@ public class BruteForceDetector implements DetectionEngine {
         return KEY_PREFIX + subject + ":" + ip;
     }
 
-    @SuppressWarnings("unchecked")
     private Long incrementWithExpiry(String key, int windowSeconds) {
-        Boolean created = redisTemplate.execute((RedisCallback<Boolean>) connection -> {
-            byte[] rawKey = redisTemplate.getKeySerializer().serialize(key);
-            if (connection.exists(rawKey)) {
-                connection.incr(rawKey);
-                return Boolean.FALSE;
-            } else {
-                connection.set(rawKey, redisTemplate.getValueSerializer().serialize(1L));
-                connection.expire(rawKey, windowSeconds);
-                return Boolean.TRUE;
-            }
-        });
-        Object val = redisTemplate.opsForValue().get(key);
-        if (val instanceof Number) return ((Number) val).longValue();
-        if (val instanceof String) { try { return Long.parseLong((String) val); } catch (NumberFormatException ignored) {} }
-        return null;
+        Long count = redisTemplate.opsForValue().increment(key, 1L);
+        if (count != null && count == 1L) {
+            redisTemplate.expire(key, java.time.Duration.ofSeconds(windowSeconds));
+        }
+        return count;
     }
 
     @Transactional(readOnly = true)

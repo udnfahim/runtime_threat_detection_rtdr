@@ -1,6 +1,6 @@
 package com.systemgrade.rtdr.service;
 
-import com.systemgrade.rtdr.model.Node;
+import com.systemgrade.rtdr.domain.model.Node;
 import com.systemgrade.rtdr.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,8 @@ public class NodeService {
         return nodeRepository.findByHostname(hostname)
                 .map(existingNode -> {
                     existingNode.setIpAddress(ip);
-                    existingNode.setLastHeartbeat(OffsetDateTime.now());
-                    existingNode.setStatus(Node.NodeStatus.ONLINE);
+                    existingNode.setLastHeartbeat(java.time.Instant.now());
+                    existingNode.setStatus(Node.Status.ONLINE);
                     return nodeRepository.save(existingNode);
                 })
                 .orElseGet(() -> {
@@ -30,15 +30,15 @@ public class NodeService {
                             .ipAddress(ip)
                             .osVersion(os)
                             .agentVersion(version)
-                            .status(Node.NodeStatus.ONLINE)
-                            .lastHeartbeat(OffsetDateTime.now())
+                            .status(Node.Status.ONLINE)
+                            .lastHeartbeat(java.time.Instant.now())
                             .build();
                     return nodeRepository.save(newNode);
                 });
     }
 
     @Transactional
-    public void updateStatus(UUID nodeId, Node.NodeStatus status) {
+    public void updateStatus(UUID nodeId, Node.Status status) {
         nodeRepository.findById(nodeId).ifPresent(node -> {
             node.setStatus(status);
             nodeRepository.save(node);

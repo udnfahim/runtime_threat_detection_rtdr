@@ -1,6 +1,6 @@
 package com.systemgrade.rtdr.repository;
 
-import com.systemgrade.rtdr.model.Node;
+import com.systemgrade.rtdr.domain.model.Node;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

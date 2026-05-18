@@ -1,10 +1,11 @@
 package com.systemgrade.rtdr.domain.model;
 
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 
 import java.time.Instant;
 import java.util.Collections;
@@ -52,7 +53,7 @@ public class Incident {
     @Column(name = "source_ip", length = 64)
     private String sourceIp;
 
-    @Type(JsonType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "raw_payload", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     private Map<String, Object> rawPayload = Collections.emptyMap();

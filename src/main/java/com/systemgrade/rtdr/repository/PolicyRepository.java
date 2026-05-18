@@ -1,6 +1,7 @@
 package com.systemgrade.rtdr.repository;
 
-import com.systemgrade.rtdr.model.Policy;
+
+import com.systemgrade.rtdr.domain.model.Policy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

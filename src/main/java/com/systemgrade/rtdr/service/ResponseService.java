@@ -1,6 +1,7 @@
 package com.systemgrade.rtdr.service;
 
-import com.systemgrade.rtdr.model.Incident;
+
+import com.systemgrade.rtdr.domain.model.Incident;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

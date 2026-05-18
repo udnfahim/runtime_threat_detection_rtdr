@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -38,6 +39,10 @@ public class Node {
     @Column(name = "agent_version", nullable = false, length = 64)
     @Builder.Default
     private String agentVersion = "0.0.0";
+
+    @Column(name = "os_version", nullable = true, length = 64)
+    @Builder.Default
+    private String osVersion = "unknown";
 
     @Column(name = "last_heartbeat", columnDefinition = "timestamp with time zone")
     @Builder.Default

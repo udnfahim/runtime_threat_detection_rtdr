@@ -1,6 +1,6 @@
 package com.systemgrade.rtdr.repository;
 
-import com.systemgrade.rtdr.model.Incident;
+import com.systemgrade.rtdr.domain.model.Incident;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -12,7 +12,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +41,7 @@ public class DatabaseConfig {
         cfg.setMaximumPoolSize(20);
         cfg.setMinimumIdle(2);
         cfg.setPoolName("rtdr-hikari");
+
         return new HikariDataSource(cfg);
     }
 
@@ -60,7 +61,7 @@ public class DatabaseConfig {
         jpaProperties.put(AvailableSettings.FORMAT_SQL, false);
         jpaProperties.put(AvailableSettings.USE_SQL_COMMENTS, false);
         factory.setJpaPropertyMap(jpaProperties);
-        factory.afterPropertiesSet();
+
         return factory;
     }
 
@@ -72,7 +73,7 @@ public class DatabaseConfig {
     }
 
     @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+    public static PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 }

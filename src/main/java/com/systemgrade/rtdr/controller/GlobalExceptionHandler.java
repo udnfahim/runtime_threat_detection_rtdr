@@ -16,6 +16,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneric(Exception ex) {
+        // TEMPORARY: Force the actual exception stack trace into stdout/stderr
+        System.err.println("=== ACTUATOR ERROR INTERCEPTED ===");
+        ex.printStackTrace();
+        System.err.println("==================================");
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("internal_error");
     }
 }

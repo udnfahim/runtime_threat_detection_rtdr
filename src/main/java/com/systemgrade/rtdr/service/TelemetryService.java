@@ -39,7 +39,7 @@ public class TelemetryService {
 
         int risk = riskScoringEngine.calculateRisk(metrics);
 
-        if (risk >= 0) { // always persist anomalies depending on policy
+        if (risk >= 0) {
             if (risk >= 20 || detection.isSuspicious()) {
                 Incident incident = Incident.builder()
                         .node(null)
@@ -55,7 +55,6 @@ public class TelemetryService {
                 Incident saved = incidentRepository.save(incident);
                 alertDispatcher.dispatchAlert(saved);
                 try {
-                    // attempt to push enforcement if nodeId present
                     if (telemetry.getNodeId() != null && !telemetry.getNodeId().isBlank()) {
                         enforcementService.pushEnforcementToNode(java.util.UUID.fromString(telemetry.getNodeId()), Map.of(
                                 "incidentId", saved.getId().toString(),

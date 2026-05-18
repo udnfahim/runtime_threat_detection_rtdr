@@ -1,9 +1,10 @@
-# Multi-stage build: compile with Maven, produce a lean runtime image
 FROM maven:3.9-eclipse-temurin-26 as builder
 WORKDIR /workspace
 COPY pom.xml mvnw* ./
 COPY src ./src
-RUN mvn -DskipTests clean package -Dmaven.repo.local=/workspace/.m2/repository
+RUN mvn -B -T 1C clean package -DskipTests \
+    -Dmaven.repo.local=/workspace/.m2/repository \
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
 FROM eclipse-temurin:26-jdk-jammy
 WORKDIR /app

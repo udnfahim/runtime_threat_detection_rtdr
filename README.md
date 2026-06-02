@@ -1,4 +1,3 @@
-```markdown
 # RTDR — Runtime Threat Detection & Response
 
 ```text
@@ -14,142 +13,119 @@
 ==================================================================================
  © 2026 FAHIM UDDIN // CORE_PROTOCOL_V2.0.0 // ALL_RIGHTS_RESERVED
 ==================================================================================
+````
 
-```
+RTDR (Runtime Threat Detection & Response) is an enterprise-grade backend security engine designed for real-time telemetry ingestion, anomaly detection, incident generation, and automated response enforcement across distributed systems.
 
-RTDR (Runtime Threat Detection & Response) is an enterprise-grade, ultra-low-latency backend security engine designed to safeguard modern infrastructure topologies. The system ingests high-frequency telemetry data streams from remote runtime agents, correlates distributed event indicators, evaluates multi-variable risk matrices in real-time, broadcasts live security alerts over persistent socket layers, and pushes active mitigation enforcement instructions back to edge nodes.
+It operates on a **zero-trust, event-driven architecture**, processing high-frequency telemetry streams and executing real-time mitigation actions.
 
 ---
 
-## 🏗️ Architectural Topology & Core Flows
+## 🏗️ System Architecture
 
-The platform enforces a strict **Zero-Trust Infrastructure Perimeter**. Relational storage layers and in-memory transactional cache mirrors are completely isolated within a private internal network bridge (`rtdr_network`), eliminating unauthorized external port binding risks. All inbound public data and agent traffic pass exclusively through a security-hardened Nginx reverse proxy gateway running on standard web boundaries.
+RTDR is deployed behind an **Nginx reverse proxy layer** exposed on port `80`.
+The Spring Boot application is **not directly exposed** to external networks.
+
+### Request Flow
 
 ```text
-                        [ AGENT / CLIENT INGRESS ]
-                                    │
-                                    ▼ (Port 80)
-                       ┌─────────────────────────┐
-                       │    Nginx Edge Proxy     │ [Hardened Security Headers]
-                       │ (conf.d/default.conf)   │ [Frame Blockades Active]
-                       └────────────┬────────────┘
-                                    │
-       ┌────────────────────────────┴────────────────────────────┐ (Private Bridge Mesh)
-       │ (HTTP REST APIs)                                        │ (WebSocket Alerts / SSE)
-       ▼ (Internal Port 8080)                                    ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                SPRING BOOT 4.0.6 ENGINE                                │
-│                                                                                        │
-│  ┌────────────────────────┐    ┌────────────────────────┐    ┌──────────────────────┐  │
-│  │     NodeController     │    │   TelemetryController  │    │    AlertDispatcher   │  │
-│  └───────────┬────────────┘    └───────────┬────────────┘    └───────────┬──────────┘  │
-│              │ (Registration)              │ (Telemetry Ingest)          │ (WS / STOMP)│
-│              ▼                             ▼                             ▼             │
-│  ┌────────────────────────┐    ┌────────────────────────┐    ┌───────────┴──────────┐  │
-│  │       NodeService      │    │   BruteForceDetector   │    │      /topic/alerts   │  │
-│  └───────────┬────────────┘    └───────────┬────────────┘    └──────────────────────┘  │
-│              │                             │ (In-Memory Counters)                      │
-│              │                             ▼                                           │
-│              │                 ┌────────────────────────┐                              │
-│              │                 │   RiskScoringEngine    │                              │
-│              │                 └───────────┬────────────┘                              │
-│              │                             │ (Threshold Breach)                        │
-│              ▼                             ▼                                           │
-│  ┌──────────────────────────────────────────────────────┐    ┌──────────────────────┐  │
-│  │               EnforcementService (SSE)               │◄───┤   Incident Creation  │  │
-│  └───────────────────────────┬──────────────────────────┘    └───────────┬──────────┘  │
-└──────────────────────────────┼───────────────────────────────────────────┼─────────────┘
-                               │ (Auto-Block / SSE Stream)                 │
-                               ▼                                           ▼
-                    ┌────────────────────┐                      ┌────────────────────┐
-                    │     Redis 7.4      │                      │   PostgreSQL 18    │
-                    │ (Transient Expiry) │                      │ (Persistent Store) │
-                    └────────────────────┘                      └────────────────────┘
-
+Client → Nginx (Port 80) → Spring Boot (Internal 8080) → PostgreSQL / Redis
 ```
 
-### Dynamic Execution Mechanics
+---
 
-1. **Agent Registration:** Host machines deploy an on-metal runtime daemon that registers itself via `POST /api/v1/nodes/register`. The `NodeService` persists the instance metadata and grants operational validation states.
-2. **Telemetry Ingestion:** Validated agents stream system analytics payloads down to `POST /api/v1/telemetry`.
-3. **Sliding-Window Volumetric Analysis:** The `BruteForceDetector` parses transaction hashes, creates an identity grouping inside **Redis** via compound tracking keys, increments dynamic rate metrics against a configurable `failed_logins_threshold`, and applies a sliding TTL window eviction strategy.
-4. **Weighted Anomaly Correlator:** The `RiskScoringEngine` processes incoming telemetry streams against an additive metric risk matrix:
+## 🧩 Core Components
 
-$$\text{Risk Score} = \text{failedLogins} + \text{requestRate} + \text{anomalyWeight} + \text{geoIrregularity}$$
-
-
-
-If the compiled score breaches the globally set `malicious_threshold`, a persistent relational `Incident` record is generated.
-5. **Asynchronous Alert Broadcast:** The `AlertDispatcher` encapsulates the threat context into optimized JSON payloads and broadcasts it immediately to active listening clients over a STOMP pipeline target at `/topic/alerts`.
-6. **Reactive Command Enforcement:** Edge agents run an active, non-blocking Server-Sent Events (SSE) socket open at `/api/v1/telemetry/enforcement/stream/{nodeId}`. Upon high-severity incident generation, the `EnforcementService` pushes automatic reactive instruction payloads (e.g., `auto_block`) down the pipeline to execute on the local agent.
+| Component   | Role                                       |
+| ----------- | ------------------------------------------ |
+| Nginx       | Edge gateway / reverse proxy               |
+| Spring Boot | Core detection & orchestration engine      |
+| PostgreSQL  | Persistent incident & node storage         |
+| Redis       | High-speed telemetry + rate tracking cache |
 
 ---
 
-## 🛠️ Advanced Tech Stack Spec Matrix
+## 🚀 Deployment Guide
 
-* **Execution Runtime:** Java 25 (Maven Tooling Build Spec) // Eclipse Temurin JDK 26 (Distroless Container Topologies).
-* **Core Framework:** Spring Boot 4.0.6 (Spring Framework 7.0 Deep Reactive Infrastructure).
-* **Perimeter Security:** Spring Security engine configured with decoupled JWT Token Resource Evaluation, backed by an unprivileged Nginx edge reverse-proxy tier.
-* **Streaming Inter-Process Pipes:** Spring WebSocket STOMP Messaging Engine + HTML5 Server-Sent Events (SSE) Pipeline.
-* **Storage Matrix:** PostgreSQL 18 Cluster (Persistent Domain State Layer) + Redis 7 Alpine Caching Rings (Transient In-Memory Evaluation Rings).
-* **Schema Evolution:** Automated Flyway Migrations running sequential structural execution updates on boot.
-
----
-
-## 🚀 Orchestration Runbook
-
-Follow this precise sequence to deploy the entire multi-tier cluster environment inside your host machine.
-
-### 1. Replicate the Workspace Environment
+### 1. Clone Repository
 
 ```bash
-git clone [https://github.com/udnfahim/runtime_threat_detection_rtdr.git](https://github.com/udnfahim/runtime_threat_detection_rtdr.git)
+git clone https://github.com/udnfahim/runtime_threat_detection_rtdr.git
 cd runtime_threat_detection_rtdr
-
 ```
 
-### 2. Isolate Configuration Parameters
+---
 
-Instantiate your localized production and container orchestration variables using the deployment template:
+### 2. Environment Configuration
+
+Create local environment file:
 
 ```bash
 cp .env.example .env
-
 ```
 
-*(Review and audit `.env` to verify your local storage engine passwords align before initialization).*
+Ensure credentials are consistent with Docker Compose:
 
-### 3. Binary Compilation Execution
-
-Compile your source code and extract your hardened, self-contained Spring Boot run-executable artifact:
-
-```bash
-./mvnw clean package -DskipTests
-
+```env
+SPRING_DATASOURCE_USERNAME=rtdr_user
+SPRING_DATASOURCE_PASSWORD=rtdr_production_password_string
 ```
 
-### 4. Spawning the Infrastructure Grid
-
-Orchestrate and start up your reverse-proxy edge layer, backend microservice instance, memory-ring cache, and persistent engine into the background bridge:
-
-```bash
-docker compose up -d --build
-
-```
-
-### 5. Verified Operational Access Points
-
-* **Hardened Edge Gateway Ingress:** `http://localhost:80`
-* **Real-Time Telemetry Socket Engine:** `ws://localhost/ws-rtdr`
-* **Operational Telemetry Hub:** `http://localhost/actuator/health`
+> ⚠️ Important: Password mismatch between `.env` and `docker-compose.yml` will cause authentication failure.
 
 ---
 
-## 🧪 Real-World API Execution & Validation Specs
+### 3. Build & Start Infrastructure
 
-### 1. Streaming Agent Telemetry (`POST /api/v1/telemetry`)
+```bash
+docker compose up -d --build
+```
 
-To feed data into the evaluation engine, execute a POST request containing a structured telemetry metric payload. The ingestion pipe expects the secure identification header parameter:
+This initializes:
+
+* Nginx reverse proxy (port 80)
+* Spring Boot application (internal port 8080)
+* PostgreSQL database
+* Redis cache layer
+
+---
+
+### 4. Verify Running Services
+
+```bash
+docker compose ps
+```
+
+Expected healthy services:
+
+* `rtdr_proxy` → Nginx gateway
+* `rtdr_app` → Spring Boot engine
+* `rtdr_postgres` → PostgreSQL (healthy)
+* `rtdr_redis` → Redis (healthy)
+
+---
+
+## 🩺 Health Check
+
+### ✅ Correct Endpoint (via Nginx Gateway)
+
+```bash
+curl http://localhost/actuator/health
+```
+
+### ❌ Incorrect (Direct Access Disabled)
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+> Spring Boot is intentionally isolated behind Nginx and not exposed externally.
+
+---
+
+## 📡 API Reference
+
+### 1. Telemetry Ingestion
 
 ```bash
 curl -X POST http://localhost/api/v1/telemetry \
@@ -165,18 +141,21 @@ curl -X POST http://localhost/api/v1/telemetry \
     "geoIrregularity": 1.0,
     "windowSeconds": 10
   }'
-
 ```
 
-### 2. Subscribing to Live Real-Time Alerts
+---
 
-To evaluate structural socket output when incident bounds are tripped, connect to the streaming cluster endpoint via standard WebSocket clients or terminal tools (e.g., `wscat`):
+### 2. Real-Time Alert Subscription
+
+WebSocket STOMP channel:
 
 ```bash
-# Establish connection to the engine socket core
 wscat -c ws://localhost/ws-rtdr
+```
 
-# Send standard STOMP frame hook subscription
+Subscription frame:
+
+```text
 CONNECT
 accept-version:1.1,1.2
 heart-beat:10000,10000
@@ -184,48 +163,109 @@ heart-beat:10000,10000
 SUBSCRIBE
 id:sub-0
 destination:/topic/alerts
-
 ```
 
 ---
 
-## ⚙️ Local Development & Debugging Workflow
+## ⚙️ Internal Service Topology
 
-To easily modify and hot-reload code logic inside an IDE like IntelliJ without waiting for container rebuild sequences:
+| Layer                  | Endpoint                             |
+| ---------------------- | ------------------------------------ |
+| Public Gateway         | [http://localhost](http://localhost) |
+| Application (internal) | [http://app:8080](http://app:8080)   |
+| Database               | PostgreSQL (Docker network only)     |
+| Cache                  | Redis (Docker network only)          |
 
-1. Map the internal PostgreSQL storage node out to your local system loopback inside `docker-compose.yml`:
+---
+
+## 🔐 Configuration Notes
+
+### Critical Requirement
+
+All credentials must remain synchronized across:
+
+* `docker-compose.yml`
+* `.env`
+* `application.yml / properties`
+
+### Example:
+
 ```yaml
-postgres:
-  ports:
-    - "5433:5432"
-
+SPRING_DATASOURCE_PASSWORD: rtdr_production_password_string
 ```
 
+---
 
-2. Spawn only the backing data services via your host shell system:
+## 🧪 Troubleshooting
+
+### 1. Database Authentication Failure
+
+If logs show:
+
+```text
+FATAL: password authentication failed for user "rtdr_user"
+```
+
+Reset environment:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+---
+
+### 2. Port 8080 Not Accessible
+
+This is expected behavior.
+Application is only exposed via Nginx (port 80).
+
+---
+
+## 📦 Development Mode (Optional)
+
+For local backend debugging:
+
 ```bash
 docker compose up -d postgres redis
-
 ```
 
+Then run Spring Boot directly from IDE with:
 
-3. Launch your primary engine class `RuntimeThreatDetectionRtdrApplication.java` inside your local IDE setup. The environment links up using HikariCP directly targeting port `5433`.
+```
+jdbc:postgresql://localhost:5433/rtdr
+```
+
+(Requires port mapping in compose if enabled)
 
 ---
 
-## ⚠️ Pre-Production Engineering Checklist
+## 📌 System Design Principles
 
-Before pushing this system into a live operational cloud deployment, the following architecture mismatches and bugs **must be addressed** in the codebase:
+* Zero-trust architecture
+* Internal service isolation
+* Event-driven telemetry pipeline
+* Sliding-window anomaly detection
+* Real-time enforcement via SSE/WebSocket
+* Stateless edge gateway routing
 
-* [ ] **Infrastructure Parameter Sync:** The application configuration currently maps its database connection to password string `rtdr_pass`, but the PostgreSQL container creation spec forces `rtdr_production_password_string`. Synchronize these inside your localized `.env` configuration.
-* [ ] **Flyway Relational Realignment:** The `V1__init_rtdr_schema.sql` migration file is missing several columns currently mapped inside the Java JPA layer. Update the SQL migration code to explicitly add:
-* `rule_type`, `threshold`, and `is_active` inside the `policies` table definition.
-* `os_version` inside the `nodes` table definition.
+---
 
+## ✔ System Status Summary
 
-* [ ] **Ingest Null Pointer Mitigation:** In `RiskScoringEngine.java`, evaluating telemetry streams containing missing or invalid node cross-references will throw a `NullPointerException` during the high-risk branch check on `node.getId()`. Wrap this validation block in an explicit `Optional` check or structural null-guard statement.
-* [ ] **Layer Decoupling Optimization:** `TelemetryController.java` bypasses the existing intermediate application layer entirely, making direct orchestration calls to `BruteForceDetector` and `RiskScoringEngine`. Refactor traffic to route through `TelemetryService.java` to comply with clean three-tier architecture principles.
+* Nginx Gateway: Active (port 80)
+* Spring Boot Engine: Running (internal only)
+* PostgreSQL: Healthy
+* Redis: Healthy
+* Health Endpoint: Operational via gateway
 
 ```
 
+---
+
+If you want next upgrade, I can convert this into:
+
+- **GitHub README with badges + CI/CD section**
+- **architecture diagram (PNG/SVG for portfolio)**
+- **or a resume-ready project description (very high impact)**
 ```
